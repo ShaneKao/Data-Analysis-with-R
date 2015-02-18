@@ -1,0 +1,215 @@
+---
+title: "Exploring Red Wine Quality"
+author: "Shane Kao"
+date: "Wednesday, February 18, 2015"
+output: pdf_document
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+library(ggplot2)
+library(dplyr)
+library(GGally)
+library(scales)
+library(memisc)
+library(reshape)
+library(gridExtra)
+```
+
+# Goal
+Which chemical properties influence the quality of red wines?
+
+# Data Overview
+This tidy data set contains 1,599 red wines with 11 variables on the chemical properties of the wine. At least 3 wine experts rated the quality of each wine, providing a rating between 0 (very bad) and 10 (very excellent).
+```{r}
+setwd("C:/Users/asus/Downloads")
+data=read.csv("wineQualityReds.csv",stringsAsFactors=FALSE)
+str(data)
+summary(data)
+```
+
+* The feature `X` is row index of data, it may provide no further information.
+* The feature `quality` is an ordered, categorical, discrete variable.
+```{r}
+data$quality<-as.ordered(data$quality)
+```
+* From the variable descriptions, {`fixed.acidity`,`volatile.acidity`,`citric.acid`} and {`free.sulfur.dioxide`,`total.sulfur.dioxide`} may strongly correlated.
+
+# Univariate Plots Section
+
+## Univariate Analysis 
+
+The following figure shows distributions for all features:
+```{r , message=FALSE, warning=FALSE}
+grid.arrange(qplot(data$fixed.acidity,xlab="fixed acidity"),
+             qplot(data$volatile.acidity,xlab="volatile acidity"),
+             qplot(data$citric.acid,xlab="citric acid"),
+             qplot(data$residual.sugar,xlab="residual sugar"),
+             qplot(data$chlorides,xlab="chlorides"),
+             qplot(data$free.sulfur.dioxide,xlab="free sulfur dioxide"),
+             qplot(data$total.sulfur.dioxide,xlab="total sulfur dioxide"),
+             qplot(data$density,xlab="density"),
+             qplot(data$pH,xlab="pH"),
+             qplot(data$sulphates,xlab="sulphates"),
+             qplot(data$alcohol,xlab="alcohol"),
+             qplot(data$quality,xlab="quality"),
+             ncol = 3)
+```
+
+* `density` and `pH` appear to be normally-distributed.
+* As we discussed before, the feature `quality` is an categorical variable, pie chart may be better choice
+```{r}
+data_quality=data.frame("count"=100*as.numeric(lapply(split(data$quality,data$quality),length))/dim(data)[1],"rating"=names(lapply(split(data$quality,data$quality),length)))
+ggplot(data_quality, aes(x="", y=count, fill=rating))+
+        geom_bar(width = 1, stat = "identity")+ coord_polar("y", start=0)
+```
+
+## Short questions
+
+### Did you create any new variables from existing variables in the dataset?
+* It is convenient to interpret the result by creating variable `rating` , classifying each wine as low, medium and high which is equally sized, randomly assign `quality` = 5 to low or medium level and `quality` = 6 to medium or high level. 
+
+```{r}
+data$rating<-rep("",dim(data)[1])
+data[data$quality%in%c(3,4),"rating"]<-"low"
+index_low=sample(data[data$quality==5,"X"],dim(data)[1]/3-length(data$rating[data$rating=="low"]))
+data[index_low,"rating"]<-"low"
+data[data$quality%in%c(7,8),"rating"]<-"high"
+index_high=sample(data[data$quality==6,"X"],dim(data)[1]/3-length(data$rating[data$rating=="high"]))
+data[index_high,"rating"]<-"high"
+data$rating[data$rating==""]<-"medium"
+data$rating<-ordered(data$rating, levels = c("low", "medium", "high"))
+table(data$rating)
+table(data$rating,data$quality)
+```
+
+*  I create a combined variable, `acid`, taking average of `fixed.acidity`, `volatile.acidity` and `citric.acid` after standardization. 
+
+```{r}
+data$acid<-((data$fixed.acidity-mean(data$fixed.acidity))/sd(data$fixed.acidity)+
+(data$volatile.acidity-mean(data$volatile.acidity))/sd(data$volatile.acidity)+
+(data$citric.acid-mean(data$citric.acid))/sd(data$citric.acid))/3
+```
+
+*  I create a combined variable, `dioxide`, taking average of `free.sulfur.dioxide` and `total.sulfur.dioxide` after standardization. 
+
+```{r}
+data$dioxide<-((data$free.sulfur.dioxide-mean(data$free.sulfur.dioxide))/sd(data$free.sulfur.dioxide)+
+(data$total.sulfur.dioxide-mean(data$total.sulfur.dioxide))/sd(data$total.sulfur.dioxide))/2
+```
+
+### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
+
+```{r , message=FALSE, warning=FALSE}
+grid.arrange(qplot(x = 'simple',y=data$fixed.acidity,geom='boxplot',ylab="fixed acidity",xlab=""),
+             qplot(x = 'simple',y=data$volatile.acidity,geom='boxplot',ylab="volatile acidity",xlab=""),
+             qplot(x = 'simple',y=data$citric.acid,geom='boxplot',ylab="citric acid",xlab=""),
+             qplot(x = 'simple',y=data$residual.sugar,geom='boxplot',ylab="residual sugar",xlab=""),
+             qplot(x = 'simple',y=data$chlorides,geom='boxplot',ylab="chlorides",xlab=""),
+             qplot(x = 'simple',y=data$free.sulfur.dioxide,geom='boxplot',ylab="free sulfur dioxide",xlab=""),
+             qplot(x = 'simple',y=data$total.sulfur.dioxide,geom='boxplot',ylab="total sulfur dioxide",xlab=""),
+             qplot(x = 'simple',y=data$density,geom='boxplot',ylab="density",xlab=""),
+             qplot(x = 'simple',y=data$pH,geom='boxplot',ylab="pH",xlab=""),
+             qplot(x = 'simple',y=data$sulphates,geom='boxplot',ylab="sulphates",xlab=""),
+             qplot(x = 'simple',y=data$alcohol,geom='boxplot',ylab="alcohol",xlab=""),
+             qplot(x = 'simple',y=data$quality,geom='boxplot',ylab="quality",xlab=""),
+             ncol = 3)
+
+```
+
+* `residual.sugar` and `chlorides` have extreme outliers.
+* I don't tidy or adjust any data.
+
+# Univariate Plots Section
+
+## Univariate Analysis
+
+The following boxplot shows how the features affect `rating`:
+
+```{r , message=FALSE, warning=FALSE}
+grid.arrange(qplot(x = data$rating,y=data$acid,geom='boxplot',ylab="acid",xlab="rating"),
+             qplot(x = data$rating,y=data$residual.sugar,geom='boxplot',ylab="residual sugar",xlab="rating"),
+             qplot(x = data$rating,y=data$chlorides,geom='boxplot',ylab="chlorides",xlab="rating"),
+             qplot(x = data$rating,y=data$dioxide,geom='boxplot',ylab="dioxide",xlab="rating"),
+             qplot(x = data$rating,y=data$density,geom='boxplot',ylab="density",xlab="rating"),
+             qplot(x = data$rating,y=data$pH,geom='boxplot',ylab="pH",xlab="rating"),
+             qplot(x = data$rating,y=data$sulphates,geom='boxplot',ylab="sulphates",xlab="rating"),
+             qplot(x = data$rating,y=data$alcohol,geom='boxplot',ylab="alcohol",xlab="rating"),
+             ncol = 3)
+```
+
+## Short questions
+
+### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
+
+As we discussed before, `residual.sugar` and `chlorides` have extreme outliers, it is difficut to verify the relationship with `rating`. We plotted on a base 10 logarithmic scale as follows:
+
+```{r , message=FALSE, warning=FALSE}
+grid.arrange(
+             qplot(x = data$rating,y=log(data$residual.sugar),geom='boxplot',ylab="residual sugar",xlab="rating"),
+             qplot(x = data$rating,y=log(data$chlorides),geom='boxplot',ylab="chlorides",xlab="rating"),            
+             ncol = 2)
+```
+
+### What was the strongest relationship you found?
+
+Higher `alcohol`, higher `rating`.
+
+# Multivariate Plots Section
+
+## Multivariate Analysis
+
+I examined the scatter plot of all the pair of features containing `alcohol` between different `rating`.
+
+```{r ,message=FALSE,warning=FALSE}
+grid.arrange(
+ggplot(data = data,aes(x = alcohol, y = acid,color = rating))+geom_point() ,
+ggplot(data = data,aes(x = alcohol, y = residual.sugar,color = rating)) +geom_point() ,
+ggplot(data = data,aes(x = alcohol, y = chlorides,color = rating))+geom_point() ,
+ggplot(data = data,aes(x = alcohol, y = dioxide,color = rating)) +geom_point() ,
+ggplot(data = data,aes(x = alcohol, y = density,color = rating))+geom_point() ,
+ggplot(data = data,aes(x = alcohol, y = pH,color = rating)) +geom_point() ,
+ggplot(data = data,aes(x = alcohol, y = sulphates,color = rating))+geom_point() ,
+ncol=2)
+```
+
+## Short questions
+
+### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+
+Lower `density` and higher `alcohol`, higher `rating`.
+
+# Final Plots and Summary
+
+## Plot One
+```{r echo=FALSE,message=FALSE,warning=FALSE, Plot_One}
+grid.arrange(qplot(data$density,xlab="density",main='distribution of density'),
+             qplot(data$pH,xlab="pH",main='distribution of pH'),
+             ncol = 2)
+```
+
+## Description One
+
+`density` and `pH` appear to be normally-distributed.
+
+### Plot Two
+```{r echo=FALSE,message=FALSE,warning=FALSE, Plot_Two}
+qplot(x = data$rating,y=data$alcohol,geom='boxplot',ylab="alcohol",xlab="rating",main='Higher alcohol, higher rating')
+```
+
+### Description Two
+
+Higher `alcohol`, higher `rating`.
+
+### Plot Three
+```{r echo=FALSE,message=FALSE,warning=FALSE, Plot_Three}
+ggplot(data = data,aes(x = alcohol, y = density,color = rating))+geom_point()+ggtitle('Lower density and higher alcohol, higher rating')
+```
+
+### Description Three
+
+Lower `density` and higher `alcohol`, higher `rating`.
+
+# Reflection
+
+Through this exploratory data analysis, I think feature `alcohol` influence the quality of red wines, however, wine experts give many 5 and 6 score of measure of wine quality, 
+maybe just use the data of quality score {3,4} compare to {7,8} will show clearly patterns.
