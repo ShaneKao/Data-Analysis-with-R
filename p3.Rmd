@@ -54,25 +54,91 @@ grid.arrange(qplot(data$fixed.acidity,xlab="fixed acidity"),
              ncol = 3)
 ```
 
+Now, we display density estimation for each features
+
 ```{r , message=FALSE, warning=FALSE,echo=FALSE}
-grid.arrange(qplot(data$fixed.acidity,xlab="fixed acidity", geom="density"),
-             qplot(data$volatile.acidity,xlab="volatile acidity", geom="density"),
-             qplot(data$citric.acid,xlab="citric acid", geom="density"),
-             qplot(data$residual.sugar,xlab="residual sugar", geom="density"),
-             qplot(data$chlorides,xlab="chlorides", geom="density"),
-             qplot(data$free.sulfur.dioxide,xlab="free sulfur dioxide", geom="density"),
-             qplot(data$total.sulfur.dioxide,xlab="total sulfur dioxide", geom="density"),
-             qplot(data$density,xlab="density", geom="density"),
-             qplot(data$pH,xlab="pH", geom="density"),
-             qplot(data$sulphates,xlab="sulphates", geom="density"),
-             qplot(data$alcohol,xlab="alcohol", geom="density"),
-             qplot(data$quality,xlab="quality", geom="density"),
-             ncol = 3)
+                qplot(data$fixed.acidity,
+                   xlab="fixed acidity", geom="density")
 ```
 
-* `density` and `pH` appear to be normally-distributed.
-* rating 5 and rating 6  has more points than other rating. 
-* Distribution of `volatile.acidity` appear to bimodal and `citric.acid` appear to trimodal.
+The sample average of `fixed.acidity` is about 8 
+
+```{r , message=FALSE, warning=FALSE,echo=FALSE}
+                qplot(data$volatile.acidity,
+                   xlab="volatile acidity", geom="density")
+```
+
+The distribution of `volatile.acidity` reveal bimodal
+
+```{r , message=FALSE, warning=FALSE,echo=FALSE}             
+             qplot(data$citric.acid,
+                   xlab="citric acid", geom="density")
+```
+
+The distribution of `citric.acid` reveal trimodal
+
+```{r , message=FALSE, warning=FALSE,echo=FALSE}             
+             qplot(data$residual.sugar,
+                   xlab="residual sugar", geom="density")
+```
+
+Most of the `residual.sugar` is smaller than 4
+
+```{r , message=FALSE, warning=FALSE,echo=FALSE}             
+             qplot(data$chlorides,
+                   xlab="chlorides", geom="density")
+```
+
+Most of the `chlorides` is smaller than 0.1
+
+```{r , message=FALSE, warning=FALSE,echo=FALSE}
+             qplot(data$free.sulfur.dioxide,
+                   xlab="free sulfur dioxide", geom="density")
+```
+
+The mode of `free.sulfur.dioxide` is about 5
+
+```{r , message=FALSE, warning=FALSE,echo=FALSE}             
+             qplot(data$total.sulfur.dioxide,
+                   xlab="total sulfur dioxide", geom="density")
+```
+
+The shape of distribution for `total.sulfur.dioxide` and `free.sulfur.dioxide` are similar
+
+```{r , message=FALSE, warning=FALSE,echo=FALSE}             
+             qplot(data$density,
+                   xlab="wine density", geom="density")
+```
+
+`density` appear to be normally-distributed.
+
+```{r , message=FALSE, warning=FALSE,echo=FALSE}             
+             qplot(data$pH,
+                   xlab="pH", geom="density")
+```
+
+* `pH` appear to be normally-distributed.
+
+```{r , message=FALSE, warning=FALSE,echo=FALSE}             
+             qplot(data$sulphates,
+                   xlab="sulphates", geom="density")
+```
+
+The mode of `sulphates` is about 0.6
+
+```{r , message=FALSE, warning=FALSE,echo=FALSE}
+             qplot(data$alcohol,
+                   xlab="alcohol", geom="density")
+```
+
+The mode of `alcohol` is about 9
+
+```{r , message=FALSE, warning=FALSE,echo=FALSE}             
+             qplot(data$quality,
+                   xlab="quality", geom="density")
+```
+
+rating 5 and rating 6  has more points than other rating. 
 
 ## Short questions
 
@@ -90,33 +156,50 @@ table(data$rating)
 *  I create a combined variable, `acid`, taking average of `fixed.acidity`, `volatile.acidity` and `citric.acid` after standardization. 
 
 ```{r}
-data$acid<-((data$fixed.acidity-mean(data$fixed.acidity))/sd(data$fixed.acidity)+
-            (data$volatile.acidity-mean(data$volatile.acidity))/sd(data$volatile.acidity)+
-            (data$citric.acid-mean(data$citric.acid))/sd(data$citric.acid))/3
+data$acid<-((data$fixed.acidity-mean(data$fixed.acidity))/
+                    sd(data$fixed.acidity)+
+            (data$volatile.acidity-mean(data$volatile.acidity))/
+                    sd(data$volatile.acidity)+
+            (data$citric.acid-mean(data$citric.acid))/
+                    sd(data$citric.acid))/3
 ```
 
 *  I create a combined variable, `dioxide`, taking average of `free.sulfur.dioxide` and `total.sulfur.dioxide` after standardization. 
 
 ```{r}
-data$dioxide<-((data$free.sulfur.dioxide-mean(data$free.sulfur.dioxide))/sd(data$free.sulfur.dioxide)+
-               (data$total.sulfur.dioxide-mean(data$total.sulfur.dioxide))/sd(data$total.sulfur.dioxide))/2
+data$dioxide<-((data$free.sulfur.dioxide-mean(data$free.sulfur.dioxide))/
+                       sd(data$free.sulfur.dioxide)+
+               (data$total.sulfur.dioxide-mean(data$total.sulfur.dioxide))/
+                       sd(data$total.sulfur.dioxide))/2
 ```
 
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
 
 ```{r , message=FALSE, warning=FALSE, fig.height=20,,echo=FALSE}
-grid.arrange(qplot(x = factor(""),y=data$fixed.acidity,geom='boxplot',ylab="fixed acidity",xlab=""),
-             qplot(x = factor(""),y=data$volatile.acidity,geom='boxplot',ylab="volatile acidity",xlab=""),
-             qplot(x = factor(""),y=data$citric.acid,geom='boxplot',ylab="citric acid",xlab=""),
-             qplot(x = factor(""),y=data$residual.sugar,geom='boxplot',ylab="residual sugar",xlab=""),
-             qplot(x = factor(""),y=data$chlorides,geom='boxplot',ylab="chlorides",xlab=""),
-             qplot(x = factor(""),y=data$free.sulfur.dioxide,geom='boxplot',ylab="free sulfur dioxide",xlab=""),
-             qplot(x = factor(""),y=data$total.sulfur.dioxide,geom='boxplot',ylab="total sulfur dioxide",xlab=""),
-             qplot(x = factor(""),y=data$density,geom='boxplot',ylab="density",xlab=""),
-             qplot(x = factor(""),y=data$pH,geom='boxplot',ylab="pH",xlab=""),
-             qplot(x = factor(""),y=data$sulphates,geom='boxplot',ylab="sulphates",xlab=""),
-             qplot(x = factor(""),y=data$alcohol,geom='boxplot',ylab="alcohol",xlab=""),
-             qplot(x = factor(""),y=data$quality,geom='boxplot',ylab="quality",xlab=""),
+grid.arrange(qplot(x = factor(""),y=data$fixed.acidity,geom='boxplot',
+                   ylab="fixed acidity",xlab=""),
+             qplot(x = factor(""),y=data$volatile.acidity,geom='boxplot',
+                   ylab="volatile acidity",xlab=""),
+             qplot(x = factor(""),y=data$citric.acid,geom='boxplot',
+                   ylab="citric acid",xlab=""),
+             qplot(x = factor(""),y=data$residual.sugar,geom='boxplot',
+                   ylab="residual sugar",xlab=""),
+             qplot(x = factor(""),y=data$chlorides,geom='boxplot',
+                   ylab="chlorides",xlab=""),
+             qplot(x = factor(""),y=data$free.sulfur.dioxide,geom='boxplot',
+                   ylab="free sulfur dioxide",xlab=""),
+             qplot(x = factor(""),y=data$total.sulfur.dioxide,geom='boxplot',
+                   ylab="total sulfur dioxide",xlab=""),
+             qplot(x = factor(""),y=data$density,geom='boxplot',
+                   ylab="density",xlab=""),
+             qplot(x = factor(""),y=data$pH,geom='boxplot',
+                   ylab="pH",xlab=""),
+             qplot(x = factor(""),y=data$sulphates,geom='boxplot',
+                   ylab="sulphates",xlab=""),
+             qplot(x = factor(""),y=data$alcohol,geom='boxplot',
+                   ylab="alcohol",xlab=""),
+             qplot(x = factor(""),y=data$quality,geom='boxplot',
+                   ylab="quality",xlab=""),
              ncol = 3)
 
 ```
@@ -138,19 +221,28 @@ corrplot(cor_jnk, order="AOE", method="circle", tl.pos="lt", type="upper",
          p.mat = 1-abs(cor_jnk), sig.level=0.50, insig = "blank")
 ```
 
-Most of features are un-correlated, but `acid` is correlated with `pH` and `density`.
+Most of features are un-correlated, but `acid` is correlated with `pH` and `density`. Note that there are only two points colored off the main
+diagonal (acid vs. density and acid vs ph) because corresponding correlation coefficient is regarded as significant.
 
 The following boxplot shows how the features affect `rating`:
 
 ```{r , message=FALSE, warning=FALSE, fig.height=20,echo=FALSE}
-grid.arrange(qplot(x = data$rating,y=data$acid,geom='boxplot',ylab="acid",xlab="rating"),
-             qplot(x = data$rating,y=data$residual.sugar,geom='boxplot',ylab="residual sugar",xlab="rating"),
-             qplot(x = data$rating,y=data$chlorides,geom='boxplot',ylab="chlorides",xlab="rating"),
-             qplot(x = data$rating,y=data$dioxide,geom='boxplot',ylab="dioxide",xlab="rating"),
-             qplot(x = data$rating,y=data$density,geom='boxplot',ylab="density",xlab="rating"),
-             qplot(x = data$rating,y=data$pH,geom='boxplot',ylab="pH",xlab="rating"),
-             qplot(x = data$rating,y=data$sulphates,geom='boxplot',ylab="sulphates",xlab="rating"),
-             qplot(x = data$rating,y=data$alcohol,geom='boxplot',ylab="alcohol",xlab="rating"),
+grid.arrange(qplot(x = data$rating,y=data$acid,geom='boxplot',
+                   ylab="acid",xlab="rating"),
+             qplot(x = data$rating,y=data$residual.sugar,geom='boxplot',
+                   ylab="residual sugar",xlab="rating"),
+             qplot(x = data$rating,y=data$chlorides,geom='boxplot',
+                   ylab="chlorides",xlab="rating"),
+             qplot(x = data$rating,y=data$dioxide,geom='boxplot',
+                   ylab="dioxide",xlab="rating"),
+             qplot(x = data$rating,y=data$density,geom='boxplot',
+                   ylab="density",xlab="rating"),
+             qplot(x = data$rating,y=data$pH,geom='boxplot',
+                   ylab="pH",xlab="rating"),
+             qplot(x = data$rating,y=data$sulphates,geom='boxplot',
+                   ylab="sulphates",xlab="rating"),
+             qplot(x = data$rating,y=data$alcohol,geom='boxplot',
+                   ylab="alcohol",xlab="rating"),
              ncol = 3)
 ```
 
@@ -187,7 +279,7 @@ In Univariate Plots Section, we conclude that `density` and `pH` appear to be no
 
 ```{r echo=FALSE}
 ggplot(data, aes(density, colour = rating)) +
-        geom_density()
+        geom_density()+xlab("Wine density")
 ggplot(data, aes(pH, colour = rating)) +
         geom_density()
 ```
@@ -213,7 +305,7 @@ I examined the scatter plot of all the pair of features containing `alcohol`, `s
 ```{r ,message=FALSE,warning=FALSE,echo=FALSE}
 ggplot(data = data,aes(x = alcohol, y = sulphates))+
        geom_point(aes(color =quality))+
-       scale_color_continuous(name="quality",low = "pink",high = "red")  
+       scale_color_continuous(name="quality",low = "white",high = "red")  
 ```
 
 Lower `sulphates` and lower `alcohol`, lower `quality`.
@@ -221,7 +313,7 @@ Lower `sulphates` and lower `alcohol`, lower `quality`.
 ```{r ,message=FALSE,warning=FALSE,echo=FALSE}
 ggplot(data = data,aes(x = alcohol, y = density))+
        geom_point(aes(color =quality))+
-       scale_color_continuous(name="quality",low = "pink",high = "red") 
+       scale_color_continuous(name="quality",low = "white",high = "red") 
 ```
 
 Higher `density` and lower `alcohol`, lower `quality`.
@@ -229,7 +321,7 @@ Higher `density` and lower `alcohol`, lower `quality`.
 ```{r ,message=FALSE,warning=FALSE,echo=FALSE}
 ggplot(data = data,aes(x = alcohol, y = pH))+
        geom_point(aes(color =quality))+
-       scale_color_continuous(name="quality",low = "pink",high = "red") 
+       scale_color_continuous(name="quality",low = "white",high = "red") 
 ```
 
 Higher `pH` and lower `alcohol`, lower `quality`.
@@ -237,7 +329,7 @@ Higher `pH` and lower `alcohol`, lower `quality`.
 ```{r ,message=FALSE,warning=FALSE,echo=FALSE}
 ggplot(data = data,aes(x = sulphates, y = density))+
        geom_point(aes(color =quality))+
-       scale_color_continuous(name="quality",low = "pink",high = "red") 
+       scale_color_continuous(name="quality",low = "white",high = "red") 
 ```
 
 Lower `sulphates`, lower `quality`.
@@ -245,7 +337,7 @@ Lower `sulphates`, lower `quality`.
 ```{r ,message=FALSE,warning=FALSE,echo=FALSE}
 ggplot(data = data,aes(x = sulphates, y = pH))+
        geom_point(aes(color =quality))+
-       scale_color_continuous(name="quality",low = "pink",high = "red") 
+       scale_color_continuous(name="quality",low = "white",high = "red") 
 ```
 
 Lower `sulphates`, lower `quality`.
@@ -255,7 +347,7 @@ Lower `sulphates`, lower `quality`.
 
 ggplot(data = data,aes(x = density, y = pH))+
        geom_point(aes(color =quality))+
-       scale_color_continuous(name="quality",low = "pink",high = "red") 
+       scale_color_continuous(name="quality",low = "white",high = "red") 
 ```
 
 Higher `pH` and higher `density`, lower `quality`.
@@ -298,7 +390,7 @@ Higher `alcohol`, higher `quality`.
 ```{r echo=FALSE,message=FALSE,warning=FALSE, Plot_Three}
 ggplot(data = data,aes(x = alcohol, y = density))+
        geom_point(aes(color =quality))+
-       scale_color_continuous(name="quality",low = "pink",high = "red")+
+       scale_color_continuous(name="quality",low = "white",high = "red")+
        ggtitle("alcohol vs density with different quality")
 ```
 
