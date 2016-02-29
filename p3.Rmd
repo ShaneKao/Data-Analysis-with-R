@@ -23,7 +23,7 @@ Which chemical properties influence the quality of red wines?
 # Data Overview
 This tidy data set contains 1,599 red wines with 11 variables on the chemical properties of the wine. At least 3 wine experts rated the quality of each wine, providing a rating between 0 (very bad) and 10 (very excellent).
 ```{r}
-setwd("C:/Users/asus/Downloads")
+setwd("C:/Users/shane/Downloads")
 data=read.csv("wineQualityReds.csv",stringsAsFactors=FALSE)
 str(data)
 summary(data)
@@ -372,7 +372,13 @@ grid.arrange(qplot(data$density,xlab="density",main='distribution of density'),
 
 ## Description One
 
-`density` and `pH` appear to be normally-distributed.
+`density` and `pH` appear to be normally-distributed. The numerical result as follows
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+summary(data[,c("density", "pH")])
+```
+
+Statistical analyses often have dependent variables and independent variables and many parametric statistical methods require that the dependent variable is approximately normally distributed for each category of the independent variable. Although `density` and `pH` are not the dependent variable in the case, we can still use histogram to investigate the distribution or boxplot to show that is there exist outliers
 
 ### Plot Two
 ```{r echo=FALSE,message=FALSE,warning=FALSE, Plot_Two}
@@ -384,7 +390,15 @@ ggplot(data, aes(x =quality, y = alcohol)) +
 
 ### Description Two
 
-Higher `alcohol`, higher `quality`.
+Higher `alcohol`, higher `quality`. The numerical result as follows
+
+```{r message=FALSE,warning=FALSE}
+model = lm(alcohol~quality, data)
+summary(model)
+```
+
+The parameter of `quality` is larger than 0, and significant, so we can infer that `alcohol` is proportional to `quality`.
+
 
 ### Plot Three
 ```{r echo=FALSE,message=FALSE,warning=FALSE, Plot_Three}
@@ -396,9 +410,22 @@ ggplot(data = data,aes(x = alcohol, y = density))+
 
 ### Description Three
 
-Higher `density` and lower `alcohol`, lower `quality`.
+Higher `density` and lower `alcohol`, lower `quality`. The numerical result as follows
+
+```{r message=FALSE,warning=FALSE}
+model = lm(alcohol~quality+density, data)
+summary(model)
+```
+
+Again, use linear model can verify the plots findings. R-squared is higher than prevoius one because we include `density` in the model, sometimes R-squared is just a metric for reference, if we include more variable in model, R-squared gets higher and higher, perform F-test, AIC or BIC, etc... to compare between different models and select the best one should be the further work.
 
 # Reflection
 
-Through this exploratory data analysis, I think feature `alcohol` influence the quality of red wines, however, wine experts give many 5 and 6 score of measure of wine quality, 
-maybe just use the data of quality score {3,4} compare to {7,8} will show clearly patterns. I think data visualiztion technique is hard to make decision, it provides too many information, sometimes we just want to know what is the quality of this wine, further study with machine learning could be done to predict the wine quality.
+* I enjoy in data visualization, it helps me in analyzing and reasoning about data and evidence. 
+* The numerical output in final plot descriptions supports the plots findings it provides further understanding of the data.
+* I struggled in plot type in multivariate plots section, color or shape to represent the third variable takes me a long time, not use shape because it makes the point overlapping 
+* How to grouping `quality` also takes me a long time, no matter how I change the criteria, it is unbalance because wine experts give many 5 and 6 score of measure of wine quality
+* My personal opinion about the data is that use the data of quality score {3,4} compare to {7,8} may show clearly patterns.
+* Regression analysis is a statistical process for estimating the relationships among variables. Scatter plot in plot two and three give a rough view of the relationships among variables
+* Through this exploratory data analysis, I think feature `alcohol` influence the quality of red wines
+* Further study with machine learning could be done to predict the wine quality.
